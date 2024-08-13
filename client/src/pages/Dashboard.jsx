@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { counts } from "../utils/data";
+import { Provider } from "react-redux";
 import CountsCard from "../components/cards/CountsCard";
 import WeeklyStatCard from "../components/cards/WeeklyStatCard";
 import CategoryChart from "../components/cards/CategoryChart";
 import AddWorkout from "../components/AddWorkout";
 import WorkoutCard from "../components/cards/WorkoutCard";
 import { addWorkout, getDashboardDetails, getWorkouts } from "../api";
+import { store } from "../redux/store"; // Only import store if you don't need persistor
+
 
 const Container = styled.div`
   flex: 1;
@@ -16,6 +19,7 @@ const Container = styled.div`
   padding: 22px 0px;
   overflow-y: scroll;
 `;
+
 const Wrapper = styled.div`
   flex: 1;
   max-width: 1400px;
@@ -26,12 +30,14 @@ const Wrapper = styled.div`
     gap: 12px;
   }
 `;
+
 const Title = styled.div`
   padding: 0px 16px;
   font-size: 22px;
   color: ${({ theme }) => theme.text_primary};
   font-weight: 500;
 `;
+
 const FlexWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -42,6 +48,7 @@ const FlexWrap = styled.div`
     gap: 12px;
   }
 `;
+
 const Section = styled.div`
   display: flex;
   flex-direction: column;
@@ -52,6 +59,7 @@ const Section = styled.div`
     gap: 12px;
   }
 `;
+
 const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -83,6 +91,7 @@ const Dashboard = () => {
       setLoading(false);
     });
   };
+
   const getTodaysWorkout = async () => {
     setLoading(true);
     const token = localStorage.getItem("fittrack-app-token");
@@ -111,36 +120,39 @@ const Dashboard = () => {
     dashboardData();
     getTodaysWorkout();
   }, []);
+
   return (
     <Container>
-      <Wrapper>
-        <Title>Dashboard</Title>
-        <FlexWrap>
-          {counts.map((item) => (
-            <CountsCard item={item} data={data} />
-          ))}
-        </FlexWrap>
-
-        <FlexWrap>
-          <WeeklyStatCard data={data} />
-          <CategoryChart data={data} />
-          <AddWorkout
-            workout={workout}
-            setWorkout={setWorkout}
-            addNewWorkout={addNewWorkout}
-            buttonLoading={buttonLoading}
-          />
-        </FlexWrap>
-
-        <Section>
-          <Title>Todays Workouts</Title>
-          <CardWrapper>
-            {todaysWorkouts.map((workout) => (
-              <WorkoutCard workout={workout} />
+      <Provider store={store}> {/* Pass the store prop here */}
+        <Wrapper>
+          <Title>Dashboard</Title>
+          <FlexWrap>
+            {counts.map((item) => (
+              <CountsCard item={item} data={data} />
             ))}
-          </CardWrapper>
-        </Section>
-      </Wrapper>
+          </FlexWrap>
+
+          <FlexWrap>
+            <WeeklyStatCard data={data} />
+            <CategoryChart data={data} />
+            <AddWorkout
+              workout={workout}
+              setWorkout={setWorkout}
+              addNewWorkout={addNewWorkout}
+              buttonLoading={buttonLoading}
+            />
+          </FlexWrap>
+
+          <Section>
+            <Title>Todays Workouts</Title>
+            <CardWrapper>
+              {todaysWorkouts.map((workout) => (
+                <WorkoutCard workout={workout} />
+              ))}
+            </CardWrapper>
+          </Section>
+        </Wrapper>
+      </Provider>
     </Container>
   );
 };
